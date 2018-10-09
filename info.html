@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>—</title>
+	<link rel="shortcut icon" href="fonts/favicon.ico" />
+	<link rel="stylesheet" href="css/materialize.min.css">
+	<link href="css/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet/less" href="css/style.less">
+	<script src="js/less.min.js"></script>
+	<!-- <script type="text/javascript">less.watch();</script> -->
+</head>
+<body>
+
+<div class="wrapperBox active">
+	<div class="inner">
+		<div class="preloader-wrapper loader-wrapper active">
+			<div class="spinner-layer spinner-blue">
+		    <div class="circle-clipper left">
+		      <div class="circle"></div>
+		    </div><div class="gap-patch">
+		      <div class="circle"></div>
+		    </div><div class="circle-clipper right">
+		      <div class="circle"></div>
+		    </div>
+		  </div>
+		  <div class="spinner-layer spinner-red">
+		    <div class="circle-clipper left">
+		      <div class="circle"></div>
+		    </div><div class="gap-patch">
+		      <div class="circle"></div>
+		    </div><div class="circle-clipper right">
+		      <div class="circle"></div>
+		    </div>
+		  </div>
+		  <div class="spinner-layer spinner-yellow">
+		    <div class="circle-clipper left">
+		      <div class="circle"></div>
+		    </div><div class="gap-patch">
+		      <div class="circle"></div>
+		    </div><div class="circle-clipper right">
+		      <div class="circle"></div>
+		    </div>
+		  </div>
+		  <div class="spinner-layer spinner-green">
+		    <div class="circle-clipper left">
+		      <div class="circle"></div>
+		    </div><div class="gap-patch">
+		      <div class="circle"></div>
+		    </div><div class="circle-clipper right">
+		      <div class="circle"></div>
+		    </div>
+		  </div>
+		</div>
+	</div>
+</div>
+
+<form class="info-form" action="" method="">
+
+	<button class="waves-effect waves-dark btn btn-large red saveUpdate-btn" name="write_ok" type="button">保存</button>
+	<div class="navbar-fixed">
+	  <nav>
+	    <div class="nav-wrapper">
+	      <a href="index.html" class="btn-floating btn-large waves-effect waves-dark left-operate">
+	      	<i class="material-icons">arrow_back</i>
+	      </a>
+	      <a class="brand-logo"></a>
+	      <a href="#modal1" class="btn-floating btn-large waves-effect waves-dark modal-trigger right-operate">
+	      	<i class="material-icons">delete</i>
+	      </a>
+	    </div>
+	  </nav>
+	</div>
+
+
+	<!-- <textarea name="info" oninput="change()"></textarea> -->
+	<!-- <div class="info_textarea" contenteditable="true" tabindex="-1" name="info"></div> -->
+	<pre id="info_textarea" class="info_textarea"></pre>
+	<textarea id="input_textarea" oninput="change()"></textarea>
+	
+	<p class="creatTime" id="creatTime"></p>
+
+	<div class="fileInputBox">
+		<div class="container">
+			<div class="row" id="filetainer">
+	      <!-- <div class="col s3">
+	      	<div class="item">
+	      		<img class="materialboxed" data-caption="" src="images/user.jpg">
+	      	</div>
+	      </div> -->
+	    </div>
+		</div>
+	</div>
+
+	<div id="modal1" class="modal bottom-sheet">
+		<div class="modal-content">
+		  <p class="red-text">确定要删除吗</p>
+		</div>
+		<div class="modal-footer">
+		  <a href="javascript:;" name="delete" class="modal-action modal-close waves-effect waves-dark btn-flat">确定</a>
+		</div>
+	</div>
+</form>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/materialize.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+	var info_textarea = '';	// 文章详情
+	var time = '';	// 文章创建时间
+
+	$("#info_textarea").on("click", function(){
+		$(this).hide();
+		$("#creatTime").hide();
+		$("#input_textarea").show().focus();
+	})
+
+	// 获取地址栏参数
+	function GetQueryString(name){
+		var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+		var r = window.location.search.substr(1).match(reg);
+		if(r!=null)return  unescape(r[2]); return null;
+	}
+
+	// alert(GetQueryString("id"));
+	var id = GetQueryString("id");
+
+	$.ajax({
+	  url: 'api/info.php?id='+id,
+	  type: 'get',
+	  dataType: 'json',
+	  success: function(res){
+	    $(".loader-wrapper").delay(300).fadeOut();
+			$(".wrapperBox").delay(600).fadeOut("slow");
+	    $("#info_textarea").text(res.data.info);
+	    $("#input_textarea").text(res.data.info);
+	    $("#creatTime").text(res.data.time);
+	    if (res.data.img.length < 1) {
+	    	$('.fileInputBox').hide();
+	    }else{
+	    	for(var i=0;i<res.data.img.length;i++){
+		      $('#filetainer').append(
+				    '<div class="col s3">' +
+			      	'<div class="item">' +
+			      		'<img class="materialboxed" data-caption="" src="'+ res.data.img[i] +'">' +
+			      	'</div>' +
+			      '</div>'
+					);
+		    }
+	    }
+	    info_textarea = $("#info_textarea").text();
+	    time = res.data.time;
+	    $(".brand-logo").text(res.data.date); 
+
+	    // 修改文章
+			change = function() {
+			  if($("#input_textarea").val() != info_textarea){
+		      $(".saveUpdate-btn").addClass("show");
+		    }else{
+		      $(".saveUpdate-btn").removeClass("show");
+		    };
+		    // 输入框为空就返回或者删除
+		    if($("#input_textarea").val() == ""){
+					$(".saveUpdate-btn").removeClass("show");
+				}
+		  }
+		  // 监听div变化
+		  // $("[name='info']").on("keydown", function(){
+		  // 	setTimeout(function() {
+		  // 		change()
+		  // 	}, 100);
+		  // });
+
+		  $(document).ready(function(){
+		    $('.materialboxed').materialbox();
+		  });
+	  }
+	})
+
+	// 提交修改的文章
+	$(document).on('click', '[name="write_ok"]', function(){
+		var new_info_textarea = $("#input_textarea").val();
+		$.ajax({
+			url: 'api/update.php',
+		  type: 'post',
+		  data: {
+		  	id: id,
+        info: new_info_textarea,
+        time: time
+		  },
+		  dataType: 'json',
+		  beforeSend: function(){
+		  	$(".loader-wrapper").show();
+		  	$(".wrapperBox").show();
+		  },
+		  success: function(res){
+		    if (res.code === 200) {
+		    	Materialize.toast('修改成功', 1000)
+		    	$(".saveUpdate-btn").removeClass("show");
+		    	$(".wrapperBox").fadeOut();
+		    }
+		    info_textarea = $("#input_textarea").val();
+		    $("#info_textarea").text(new_info_textarea);
+
+		    $("#info_textarea").show();
+		    $("#creatTime").show();
+		    $("#input_textarea").hide();
+
+		    // 又修改了文章
+				change = function() {
+				  if($("#input_textarea").val() != info_textarea){
+			      $(".saveUpdate-btn").addClass("show");
+			    }else{
+			      $(".saveUpdate-btn").removeClass("show");
+			    };
+			    // 输入框为空就返回或者删除
+			    if($("#input_textarea").val() == ""){
+						$(".saveUpdate-btn").removeClass("show");
+					}
+			  }
+		  }
+		})
+	})
+
+	// 删除文章
+	$(document).on('click', '[name="delete"]', function(){
+		$.ajax({
+			url: 'api/delete.php',
+		  type: 'get',
+		  data: {
+		  	id: id
+		  },
+		  dataType: 'json',
+		  beforeSend: function(){
+		  	$(".loader-wrapper").show();
+		  	$(".wrapperBox").show();
+		  },
+		  success: function(res){
+		    if (res.code === 200) {
+		    	Materialize.toast('删除成功', 1000)
+		    	$(".saveUpdate-btn").removeClass("show");
+		    	$(".wrapperBox").delay(300).fadeOut("slow");
+		    	setTimeout("window.location.href='index.html'",1100)
+		    }
+		  }
+		})
+	})
+
+</script>
+</body>
+</html>
