@@ -49,7 +49,7 @@ if (empty($img)) {
 	
 }else{
 	foreach($img as $base64_image){
-		$img_path .= upload_base64_img_comm($base64_image, $dir).',';
+		$img_path .= 'http://love.s1.natapp.cc/'.upload_base64_img_comm($base64_image, $dir).',';
 	}
 }
 
